@@ -21,16 +21,24 @@ Required support skills included in this repo:
 
 Originally from https://github.com/ed3dai/ed3d-plugins, adapted to use AGENTS.md for project context.
 
+### `workflow-lead`
+
+Executes a phased multi-agent workflow plan handed to it by a facet, fanning out child subagents per phase (parallel where independent) and returning only the synthesized result. Used by the `plan-more` facet when a planning run's fan-out is too large to hold in the facet's own context.
+
 ## Facets
 
-No facets are included yet.
+### `plan-more`
 
-When facets are added, they should live under a top-level `facets/` directory and be documented here with:
+<img src="more.jpg" alt="Kylo Ren screaming MORE!" width="400">
 
-- the facet name
-- what behavior or tool profile it enables
-- when to use it
-- any setup requirements
+A read-only, workflow-native story-planning facet. It turns a vague feature request into an execution-ready story spec (summary, acceptance criteria, tasks, dev notes) through a phased multi-agent workflow: multi-surface investigation fan-out, operator design-grilling, adversarial multi-angle drafting, a grounding check against the real source tree, a three-layer spec review, and a `handoff_plan` into the shipped `execute` facet.
+
+- **Tool profile:** read-only. It inspects the repo (`file_read`, `glob`, `grep`, read-only `shell_exec`), dispatches read-only subagents, and mutates only the Polytoken plan artifact (`write_plan` / `edit_plan` / `handoff_plan`). It never changes project files or issue-tracker state, so its tool calls are safe to auto-approve.
+- **When to use:** any feature big enough to deserve a written spec before implementation — especially when you want broad grounding and adversarial review rather than a single-pass plan.
+- **Setup requirements:** install the `grill-me` and `review-plan` skills and the `workflow-lead` subagent alongside it (all included in this repo). The built-in `researcher`, `plan-reviewer`, `general-purpose`, and `general-purpose-mini` subagents must be available (they ship with Polytoken).
+
+Parts taken from https://github.com/ed3dai/ed3d-plugins, https://github.com/obra/superpowers,
+https://github.com/bmad-code-org/BMAD-METHOD/ and my own work. 
 
 ## Skills
 
@@ -49,6 +57,31 @@ Use it when a task is too tedious, risky, or stateful to explain repeatedly in c
 The generated wizard UX supports progress display, time estimates, confirmation gates, cross-platform URL opening, hidden secret entry, idempotent `.env` updates, GitHub Actions secret/variable helpers, command execution prompts, checks, and a closing summary.
 
 Originally from https://github.com/mattpocock/skills
+
+### `grill-me`
+
+Interviews the user relentlessly about a plan or design until reaching shared understanding, walking every branch of the decision tree and recommending an answer for each question. Used by the `plan-more` facet for design grilling, and useful standalone whenever you want a plan stress-tested.
+
+Originally from https://github.com/mattpocock/skills
+
+### `review-plan`
+
+Runs a mandatory three-layer parallel spec review before an execution handoff: a story-spec checklist reviewer, an outside-model reviewer on a different model family, and the `plan-reviewer` subagent for plan shape. Findings are triaged by severity and gate `handoff_plan`. Support skill for the `plan-more` facet.
+
+### `review`
+
+<img src="fire_everything.jpg" alt="FIRE EVERYTHING! meme" width="400">
+
+Multi-model, multi-lens review of a diff (a branch, PR, staged or uncommitted changes, or a pasted diff). Five independent read-only reviewers run as parallel subagents — repository standards, spec fidelity, blind defect hunting, LLM-pathology hunting, and test-quality audit — each given precisely scoped context, with cross-family model overrides so a model never reviews its own family's blind spots. Findings are triaged against the actual code, re-rated, and consolidated into one verdict report. Facets and skills can also invoke it as a prescribed Standards+Spec review layer. The reviewer contract and per-layer briefs ship as sibling files in the skill directory.
+
+Parts taken from https://github.com/mattpocock/skills, https://github.com/obra/superpowers,
+https://github.com/bmad-code-org/BMAD-METHOD/ and my own work.
+
+### `writing-skills`
+
+The vocabulary, principles, and testing loop for writing Polytoken skills that behave predictably. Covers when something should be a skill at all, model- versus user-invocation tradeoffs, writing trigger descriptions, information hierarchy and progressive disclosure, leading words, pruning, and failure modes. Ships with a glossary of the full domain model (`GLOSSARY.md`) and a subagent-based procedure for pressure-testing behavioural skills (`TESTING.md`).
+
+Originally from https://github.com/mattpocock/skills and https://github.com/obra/superpowers, adapted to Polytoken invocation and scoping mechanics.
 
 ### `maintaining-project-context`
 
